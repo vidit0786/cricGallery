@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AIProvider {
+  OPENAI
+}
+
+enum DownloadSize {
+  HD
+  FOUR_K
+  EIGHT_K
+  INSTAGRAM
+  INSTAGRAM_STORY
+  YOUTUBE_THUMBNAIL
+  WALLPAPER
+  POSTER
+}
+
+enum ThemePreference {
+  DARK
+  LIGHT
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts        Account[]
+  sessions        Session[]
+  projects        Project[]
+  generatedImages GeneratedImage[]
+  recommendationHistory RecommendationHistory[]
+  settings        GenerationSettings?
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  isFavorite  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  generatedImages GeneratedImage[]
+  recommendationHistory RecommendationHistory[]
+
+  @@index([userId, updatedAt])
+  @@map("projects")
+}
+
+model PromptVersion {
+  id          String   @id @default(cuid())
+  version     String   @unique
+  description String?
+  template    String?  @db.Text
+  createdAt   DateTime @default(now())
+
+  generatedImages GeneratedImage[]
+
+  @@map("prompt_versions")
+}
+
+model GeneratedImage {
+  id                   String   @id @default(cuid())
+  userId               String
+  projectId            String
+  promptVersionId      String?
+  name                 String
+  originalImageDataUrl  String   @db.Text
+  generatedImageDataUrl String   @db.Text
+  prompt               String   @db.Text
+  promptVersion         String
+  promptMetadata        Json?
+  cricketSelections     Json
+  imageProvider         String
+  imageModel            String
+  mimeType              String
+  qualityScore          Json
+  isFavorite            Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  promptVersionRecord PromptVersion? @relation(fields: [promptVersionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([projectId, createdAt])
+  @@map("generated_images")
+}
+
+model RecommendationHistory {
+  id                  String   @id @default(cuid())
+  userId              String
+  projectId           String
+  imageDataUrl         String   @db.Text
+  recommendationContext Json
+  recommendedSettings  Json
+  recommendations      Json
+  confidence           Float
+  reason               String   @db.Text
+  generationUsed       Boolean  @default(false)
+  createdAt            DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([projectId, createdAt])
+  @@map("recommendation_history")
+}
+
+model GenerationSettings {
+  id                   String          @id @default(cuid())
+  userId               String          @unique
+  defaultAIProvider     AIProvider      @default(OPENAI)
+  defaultDownloadSize   DownloadSize    @default(HD)
+  defaultCricketFormat  String          @default("IPL")
+  theme                ThemePreference @default(DARK)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("generation_settings")
+}

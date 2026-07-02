@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cricket_ai_studio_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      NODE_ENV: test
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: test-secret-test-secret-test-secret
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/cricket_ai_studio_test?schema=public
+      OPENAI_API_KEY: test-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npm run env:validate
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm run test:coverage
+      - run: npm run build

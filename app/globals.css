@@ -1,0 +1,157 @@
+@import "tailwindcss" source(none);
+@source "../app";
+@source "../components";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: var(--font-sans);
+}
+
+:root {
+  color-scheme: dark;
+  --radius: 1rem;
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Premium cricket-inspired palette: deep night green, turf, lime, and ivory. */
+  --background: #06120d;
+  --foreground: #f8fff7;
+  --card: #0b1f16;
+  --card-foreground: #f8fff7;
+  --popover: #0b1f16;
+  --popover-foreground: #f8fff7;
+  --primary: #b7f95a;
+  --primary-foreground: #07110c;
+  --secondary: #123423;
+  --secondary-foreground: #e9ffe5;
+  --muted: #11251a;
+  --muted-foreground: #9bb5a4;
+  --accent: #19c37d;
+  --accent-foreground: #04100b;
+  --destructive: #ff5c5c;
+  --destructive-foreground: #fff7f7;
+  --border: rgba(210, 255, 207, 0.14);
+  --input: rgba(210, 255, 207, 0.18);
+  --ring: #b7f95a;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --background: #f6fbf2;
+    --foreground: #07110c;
+    --card: #ffffff;
+    --card-foreground: #07110c;
+    --popover: #ffffff;
+    --popover-foreground: #07110c;
+    --primary: #2f7d18;
+    --primary-foreground: #f8fff7;
+    --secondary: #e7f5df;
+    --secondary-foreground: #092111;
+    --muted: #edf5e8;
+    --muted-foreground: #54705d;
+    --accent: #12a56a;
+    --accent-foreground: #ffffff;
+    --destructive: #c93636;
+    --destructive-foreground: #fff7f7;
+    --border: rgba(7, 17, 12, 0.12);
+    --input: rgba(7, 17, 12, 0.16);
+    --ring: #2f7d18;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(183, 249, 90, 0.16), transparent 30%),
+    radial-gradient(circle at 85% 10%, rgba(25, 195, 125, 0.16), transparent 28%),
+    linear-gradient(135deg, #04100b 0%, #06120d 45%, #071a12 100%);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+@media (prefers-color-scheme: light) {
+  body {
+    background:
+      radial-gradient(circle at 15% 0%, rgba(47, 125, 24, 0.14), transparent 30%),
+      radial-gradient(circle at 85% 10%, rgba(18, 165, 106, 0.12), transparent 28%),
+      linear-gradient(135deg, #f6fbf2 0%, #eef8e9 45%, #ffffff 100%);
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(183, 249, 90, 0.35);
+  color: #ffffff;
+}
+
+/* Reusable page shell helpers keep page files focused on content. */
+.page-section {
+  width: min(1120px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.cricket-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes wizard-fade-slide {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.wizard-step-panel {
+  animation: wizard-fade-slide 260ms ease-out both;
+}
